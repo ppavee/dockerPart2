@@ -1,0 +1,31 @@
+version: '3.5'
+
+services:
+    backend:
+        image: backend  
+        environment:
+            - FRONT_URL=http://localhost:5000
+            - REDIS=redis
+            - REDIS_URL=redis://cache
+        links:
+            - redis
+        ports:
+            - 8000:8000
+        volumes:
+            - /home/paavo/frontend-example-docker/backend-example-docker/logs.txt://logs.txt
+
+    frontend:
+        image: frontend
+        environment:
+            - API_URL=http://localhost:8000
+        ports:
+            - 5000:5000
+    redis:
+        container_name: cache
+        hostname: redis
+        image: redis
+        expose:
+            - 6379
+
+
+    
