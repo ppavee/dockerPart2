@@ -1,0 +1,67 @@
+version: '3.7'
+
+services:
+    backend:
+        image: backend
+        environment:
+            - FRONT_URL=http://localhost:5000
+            - REDIS=redis
+            - DB_USERNAME=user
+            - DB_PASSWORD=passwd
+            - DB_NAME=pgdb
+            - DB_HOST=postgres
+        links:
+            - redis
+            - postgres
+        volumes:
+            - /home/paavo/backend-example-docker/logs.txt://logs.txt
+        expose:
+            - "8000"
+        depends_on:
+            - postgres
+            - redis
+
+    frontend:
+        image: frontend
+        environment:
+            - API_URL=http://localhost/api
+        expose:
+            - 5000
+
+    
+    redis:
+        container_name: cache
+        hostname: redis
+        image: redis
+        expose:
+            - "6379"
+        volumes:
+            - /home/paavo/dockerfiles/redisdata:/redisdata
+
+    
+    postgres:
+        container_name: postgres
+        image: postgres
+        environment:
+            - POSTGRES_USER=user
+            - POSTGRES_PASSWORD=passwd
+            - POSTGRES_DB=pgdb
+        ports:
+            - "5432:5432"
+        volumes:
+            - /home/paavo/dockerfiles/postgresdata:/var/lib/postgresql/data
+
+    
+    nginx:
+        image: nginx
+        container_name: nginx
+        ports:
+            - 80:80
+        volumes:
+            - /home/paavo/dockerfiles/nginx/nginx.conf:/etc/nginx/nginx.conf
+        links:
+            - frontend:frontend
+            - backend:backend
+            - redis:redis
+            - postgres:postgres
+
